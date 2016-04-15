@@ -14,16 +14,16 @@ class TestDownloader(unittest.TestCase):
         self.assertEqual(allProgs[0][62].name, "Dorothy's Daily Devotionals")
         
         # Tuesday
-        self.assertEqual(len(allProgs[1]), 63)
-        self.assertEqual(allProgs[1][62].name, "Dorothy's Daily Devotionals")
+        self.assertEqual(len(allProgs[1]), 64)
+        self.assertEqual(allProgs[1][63].name, "Dorothy's Daily Devotionals")
         
         # Wednesday
         self.assertEqual(len(allProgs[2]), 63)
         self.assertEqual(allProgs[2][62].name, "Dorothy's Daily Devotionals")
         
         # Thursday
-        self.assertEqual(len(allProgs[3]), 58)
-        self.assertEqual(allProgs[3][57].name, "Running to Win")
+        self.assertEqual(len(allProgs[3]), 63)
+        self.assertEqual(allProgs[3][62].name, "Dorothy's Daily Devotionals")
         
         # Firday
         self.assertEqual(len(allProgs[4]), 63)
@@ -77,11 +77,12 @@ class TestFormater(unittest.TestCase):
         schedule.addProgram(0, "23:00", "24:00", "late test on 1")
         result = cut.format(schedule)
         lines = result.split(sep="\n")
-        self.assertEqual("00:00:    test on 1    -                  -                  -                  -                  -                  -                  - ", lines[0])
-        self.assertEqual("00:01:    test on 1    -                  -                  -                  -                  -                  -                  - ", lines[1])
-        self.assertEqual("00:02:                 -                  -                  -                  -                  -                  -                  - ", lines[2])
-        self.assertEqual("23:58: late test on 1  -                  -                  -                  -                  -                  -                  - ", lines[1438])
-        self.assertEqual("23:59: late test on 1  -                  -                  -                  -                  -                  -                  - ", lines[1439])
+        self.assertRegexpMatches(lines   [0], "00:00:(\ *)test on 1(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-")
+        self.assertRegexpMatches(lines   [1], "00:01:(\ *)test on 1(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-")
+        self.assertRegexpMatches(lines   [2], "00:02:(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-")
+        self.assertRegexpMatches(lines[1438], "23:58:(\ *)late test on 1(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-")
+        self.assertRegexpMatches(lines[1439], "23:59:(\ *)late test on 1(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-")
+
 
     def test_format_two_days(self):
         cut = Formater()
@@ -91,11 +92,12 @@ class TestFormater(unittest.TestCase):
         schedule.addProgram(0, "23:00", "24:00", "late test on 1")
         result = cut.format(schedule)
         lines = result.split(sep="\n")
-        self.assertEqual("00:00:    test on 1    -     test on 2    -                  -                  -                  -                  -                  - ", lines[0])
-        self.assertEqual("00:01:    test on 1    -     test on 2    -                  -                  -                  -                  -                  - ", lines[1])
-        self.assertEqual("00:02:                 -     test on 2    -                  -                  -                  -                  -                  - ", lines[2])
-        self.assertEqual("23:58: late test on 1  -     test on 2    -                  -                  -                  -                  -                  - ", lines[1438])
-        self.assertEqual("23:59: late test on 1  -     test on 2    -                  -                  -                  -                  -                  - ", lines[1439])
+        self.assertRegexpMatches(lines   [0], ".*")
+        self.assertRegexpMatches(lines   [0], "00:00:(\ *)test on 1(\ *)-(\ *)test on 2(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-")
+        self.assertRegexpMatches(lines   [1], "00:01:(\ *)test on 1(\ *)-(\ *)test on 2(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-")
+        self.assertRegexpMatches(lines   [2], "00:02:              (\ *)-(\ *)test on 2(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-")
+        self.assertRegexpMatches(lines[1438], "23:58:(\ *)late test on 1(\ *)-(\ *)test on 2(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-")
+        self.assertRegexpMatches(lines[1439], "23:59:(\ *)late test on 1(\ *)-(\ *)test on 2(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-(\ *)-")
 
 
 class TestSchedule(unittest.TestCase):

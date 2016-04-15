@@ -1,7 +1,5 @@
 from html.parser import HTMLParser
 import urllib3
-from _datetime import datetime, timedelta
-import shutil
 
 class RadioProgram():
     
@@ -57,8 +55,6 @@ class MyHTMLParser(HTMLParser):
                 # program is starting
                 # for the last program on that day it is also correct like that
                 default_end_time = '24:00'
-                if len(self.programs) > 0:
-                    default_end_time = self.programs[0].start
                 
                 p = RadioProgram(self.current_prog_start_cat, 
                                 default_end_time,
@@ -132,7 +128,7 @@ class Formater():
         for row in range(0, len(obj_to_format.getRows())):
             output += obj_to_format.getRows()[row].time_formated + ":"
             for col in range(0, len(obj_to_format.getRows()[row].col)):
-                output +=  " {0:^15} - ".format(obj_to_format.getRows()[row].col[col])
+                output +=  " {0:^40} - ".format(obj_to_format.getRows()[row].col[col])
             output += "\n"
         return output;
 
@@ -187,7 +183,7 @@ class Downloader:
 if __name__ == '__main__':
     worker = Downloader()
     #progsPerDay = worker.handle()
-    progsPerDay = worker.get_offline()
+    progsPerDay = worker.get_offline("tmp")
     schedule = Schedule()
     
     for day in range(0, len(progsPerDay)):
