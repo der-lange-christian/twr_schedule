@@ -123,12 +123,21 @@ class Schedule:
 
 class Formater():
     
+    def __init__(self, seperator="-", space_for_entries=40, show_header=False):
+        self.seperator = seperator
+        self.space_for_entries = space_for_entries
+        self.show_header = show_header
+    
     def format(self, obj_to_format):
         output = ""
+        for header in ["Time", "Monday", "Tuesday", "Wednesday", "Thursday", "Fireday", "Saturday", "Sunday"]:
+            output += header + ";"
+        output += "\n"
         for row in range(0, len(obj_to_format.getRows())):
-            output += obj_to_format.getRows()[row].time_formated + ":"
+            output += obj_to_format.getRows()[row].time_formated + self.seperator
             for col in range(0, len(obj_to_format.getRows()[row].col)):
-                output +=  " {0:^40} - ".format(obj_to_format.getRows()[row].col[col])
+                
+                output +=  " {0:^{2}} {1} ".format(obj_to_format.getRows()[row].col[col], self.seperator, 40)
             output += "\n"
         return output;
 
@@ -147,7 +156,7 @@ class Downloader:
     def file_name(self, day, folder):
         return folder + "/" + day[0] + ".html"
     
-    def handle(self):
+    def download(self, folder):
         progs = []
         
         http = urllib3.PoolManager()
@@ -157,15 +166,9 @@ class Downloader:
             
             response = http.request('GET', day[1], preload_content=False)
             print("response: " + str(response.status))
-            f = open(self.file_name(day), 'w')
+            f = open(self.file_name(day,folder ), 'w')
             f.write(response.data.decode("utf-8"))
             f.close
-            
-            # instantiate the parser and fed it some HTML
-            parser = MyHTMLParser()
-            parser.feed(response.data.decode("utf-8"))
-            progs.append(parser.getPrograms())
-        return progs
 
     def get_offline(self, folder):
         progs = []
@@ -182,17 +185,23 @@ class Downloader:
 
 if __name__ == '__main__':
     worker = Downloader()
-    #progsPerDay = worker.handle()
+    progsPerDay = worker.download("tmp")
     progsPerDay = worker.get_offline("tmp")
     schedule = Schedule()
     
     for day in range(0, len(progsPerDay)):
-        print("***********************day: ", day)
+        #print("***********************day: ", day)
         for prog in range(0, len(progsPerDay[day])):
             progData = progsPerDay[day][prog]
-            print("progData: %s, %s, %s" % (progData.start, progData.stop, progData.name))
+            #print("progData: %s, %s, %s" % (progData.start, progData.stop, progData.name))
             schedule.addProgram(day, progData.start, progData.stop, progData.name)
     
-    formater = Formater()
+    formater = Formater(seperator=";", show_header=True)
     
-    print(formater.format(schedule))
+    output = formater.format(schedule)
+    
+    file = open("schedule.csv", 'w')
+    file.truncate()     # delete content of file
+    file.write(output)  # write text to file
+    file.close()
+    print("finished")
