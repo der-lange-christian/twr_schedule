@@ -93,8 +93,9 @@ class Schedule:
             
         def setProgram(self, col, program_name):
             self.col[col] = program_name
-    
-    def __init__(self):
+
+    def __init__(self, convert_comma_to_semicolon=False):
+        self.convert_comma_to_semicolon = convert_comma_to_semicolon
         self.rows = []
         
         for minute in range(24*60):            
@@ -119,6 +120,8 @@ class Schedule:
         end_mins = hour*60+minute
         
         for i in range(start_mins, end_mins):
+            if self.convert_comma_to_semicolon:
+                name = name.replace(",", ";")
             self.rows[i].col[day] = name
 
 class Formater():
@@ -130,9 +133,10 @@ class Formater():
     
     def format(self, obj_to_format):
         output = ""
-        for header in ["Time", "Monday", "Tuesday", "Wednesday", "Thursday", "Fireday", "Saturday", "Sunday"]:
-            output += header + ";"
-        output += "\n"
+        if self.show_header:
+            for header in ["Time", "Monday", "Tuesday", "Wednesday", "Thursday", "Fireday", "Saturday", "Sunday"]:
+                output += header + self.seperator
+            output += "\n"
         for row in range(0, len(obj_to_format.getRows())):
             output += obj_to_format.getRows()[row].time_formated + self.seperator
             for col in range(0, len(obj_to_format.getRows()[row].col)):
@@ -196,7 +200,7 @@ if __name__ == '__main__':
             #print("progData: %s, %s, %s" % (progData.start, progData.stop, progData.name))
             schedule.addProgram(day, progData.start, progData.stop, progData.name)
     
-    formater = Formater(seperator=";", show_header=True)
+    formater = Formater(seperator=",", show_header=True)
     
     output = formater.format(schedule)
     

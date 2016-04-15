@@ -143,5 +143,20 @@ class TestSchedule(unittest.TestCase):
         cut.addProgram(0, "23:00", "24:00", "late test on 1")
         self.assertEqual(cut.getRows()[1439].col[0], "late test on 1")
 
+    def test_schedule_replace_comma_not_setted(self):
+        cut = Schedule()
+        cut.addProgram(1, "00:00", "00:01", "test, 123")
+        self.assertEqual(cut.getRows()[0].col[1], "test, 123")
+        
+    def test_schedule_replace_comma_setted(self):
+        cut = Schedule(True)
+        cut.addProgram(1, "00:00", "00:01", "test, 123")
+        self.assertEqual(cut.getRows()[0].col[1], "test; 123")
+
+    def test_schedule_replace_double_comma_setted(self):
+        cut = Schedule(True)
+        cut.addProgram(1, "00:00", "00:01", "test, ,123")
+        self.assertEqual(cut.getRows()[0].col[1], "test; ;123")        
+
 if __name__ == '__main__':
     unittest.main()    
